@@ -1,58 +1,27 @@
 import numpy as np
 
 
-def QR(A0):
-    n = A0.shape[0]
-
-    I = np.eye(n)
-    Q = np.copy(I)
-    R = Q @ A0
-
-    eps = 1e-6
-
-    for m in range(n-1):
-        beta_prev = 1e10
-        k = 0
-
-        while np.abs(beta_prev) >= eps:
-            alpha = R[m, m]
-            beta = R[m+1, m]
-
-            mu = wilkinson_shift(alpha, alpha_prev, beta_prev) if k > 0 else 0.
-
-            R = R - mu*I
-
-            c, s = get_cs(alpha, beta)
-            i, j = (m, m+1)
-
-            G = givens_matrix(n, i, j, c, s)
-
-            Q = Q @ G.T
-            R = G @ R + mu*I
-
-            k += 1
-
-            alpha_prev = alpha
-            beta_prev = beta        
-
-    return (Q, R)
-
-def sign(number: float) -> float:
-    if number >= 0:
-        return 1.
+def sign(x: float) -> float:
+    if x >= 0.0:
+        return 1.0
     else:
-        return -1.
+        return -1.0
 
-def wilkinson_shift(alpha, alpha_prev, beta_prev):
-    d = (alpha_prev - alpha) / 2
+def wilkinson_shift(alpha: float, alpha_prev: float, beta_prev: float) -> float:
+    d = (alpha_prev - alpha) / 2.0
     mu = alpha + d - sign(d) * np.abs(d - beta_prev)
 
     return mu
 
-def get_cs(alpha: float, beta: float) -> tuple:
-    denominator = np.sqrt(alpha**2 + beta**2)
-    c = alpha / denominator
-    s = - beta / denominator
+def cos_and_sin(alpha: float, beta: float) -> "tuple[float, float]":
+    if np.abs(alpha) > np.abs(beta):
+        tau = - beta / alpha
+        c = 1 / np.sqrt(1 + tau**2)
+        s = c * tau
+    else:
+        tau = - alpha / beta
+        s = 1 / np.sqrt(1 + tau**2)
+        c = s * tau
 
     return (c, s)
 
@@ -66,6 +35,44 @@ def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
     G[j, i] = s
 
     return G
+
+def QR(A0: np.ndarray, epsilon: float=1e-6) -> "tuple[np.ndarray, np.ndarray]":
+    n = A0.shape[0]
+
+    I = np.eye(n)
+    Q = np.copy(I)
+    R = Q @ A0
+
+    for m in range(n-1):
+        beta_prev = np.inf # Initialize beta as something big
+        iter_count = 1 # Counts iterations per eigenvalue found
+
+        while np.abs(beta_prev) >= epsilon:
+            alpha = R[m, m]
+            beta = R[m+1, m]
+
+            i, j = (m, m+1)
+            c, s = cos_and_sin(alpha, beta)
+            G = givens_matrix(n, i, j, c, s)
+            mu = wilkinson_shift(alpha, alpha_prev, beta_prev) if iter_count > 1 else 0.0
+
+            R = R - mu*I
+            Q = Q @ G.T
+            R = G @ R + mu*I
+
+            alpha_prev = alpha
+            beta_prev = beta
+
+            iter_count += 1
+        
+        R[m+1, m] = 0 # If while loop stops, beta converged (is zero)
+
+        print(f"Element in positon {(m, m)} converged to eigenvalue after {iter_count} iterations.")
+
+    # Last eigenvalue converges with last but one eigenvalue
+    print(f"Element in positon {(m+1, m+1)} converged to eigenvalue after {iter_count} iterations.")
+
+    return (Q, R)
 
 
 A = np.array(
