@@ -1,6 +1,42 @@
 import numpy as np
 
 
+def QR(A0):
+    n = A0.shape[0]
+
+    I = np.eye(n)
+    Q = np.copy(I)
+    R = Q @ A0
+
+    eps = 1e-6
+
+    for m in range(n-1):
+        beta_prev = 1e10
+        k = 0
+
+        while np.abs(beta_prev) >= eps:
+            alpha = R[m, m]
+            beta = R[m+1, m]
+
+            mu = wilkinson_shift(alpha, alpha_prev, beta_prev) if k > 0 else 0.
+
+            R = R - mu*I
+
+            c, s = get_cs(alpha, beta)
+            i, j = (m, m+1)
+
+            G = givens_matrix(n, i, j, c, s)
+
+            Q = Q @ G.T
+            R = G @ R + mu*I
+
+            k += 1
+
+            alpha_prev = alpha
+            beta_prev = beta        
+
+    return (Q, R)
+
 def sign(number: float) -> float:
     if number >= 0:
         return 1.
@@ -9,7 +45,7 @@ def sign(number: float) -> float:
 
 def wilkinson_shift(alpha, alpha_prev, beta_prev):
     d = (alpha_prev - alpha) / 2
-    mu = alpha + d - sign(d) * np.sqrt(d**2 - beta_prev**2)
+    mu = alpha + d - sign(d) * np.abs(d - beta_prev)
 
     return mu
 
@@ -38,29 +74,8 @@ A = np.array(
      [0., 3., 4.]]
 )
 
-n = A.shape[0]
+Q, R = QR(A)
+Q_np, R_np = np.linalg.qr(A)
 
-R = np.copy(A)
-Q = np.eye(n)
-
-max_iter = 1
-
-for i in range(max_iter):
-    for k in range(n-1):
-
-        alpha = R[k, k]
-        beta = R[k+1, k]
-
-        c, s = get_cs(alpha, beta)
-
-        i, j = (k, k+1)   
-
-        Q = givens_matrix(n, i, j, c, s) @ Q
-        R = Q @ A
-
-    A = R @ Q.T
-    V = Q.T
-
-print('R =\n', R, end='\n\n')
-print('A =\n', A, end='\n\n')
-print('V =\n', V, end='\n\n')
+print('Self\nQ =\n', Q, '\n', 'R =\n', R)
+print('Numpy\nQ =\n', Q_np, '\n', 'R =\n', R_np)
