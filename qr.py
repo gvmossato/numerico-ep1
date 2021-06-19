@@ -9,7 +9,7 @@ def sign(x: float) -> float:
 
 def wilkinson_shift(alpha: float, alpha_prev: float, beta_prev: float) -> float:
     d = (alpha_prev - alpha) / 2.0
-    mu = alpha + d - sign(d) * np.abs(d - beta_prev)
+    mu = alpha + d - sign(d) * np.sqrt(d**2 + beta_prev**2)
 
     return mu
 
@@ -71,6 +71,10 @@ def QR(A0: np.ndarray, epsilon: float=1e-6) -> "tuple[np.ndarray, np.ndarray]":
 
     # Last eigenvalue converges with last but one eigenvalue
     print(f"Element in positon {(m+1, m+1)} converged to eigenvalue after {iter_count} iterations.")
+
+    #fix_sign = [ sign(x) for x in R[0,:] ]
+    #Q *= fix_sign
+    #R *= fix_sign
 
     return (Q, R)
 
