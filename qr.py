@@ -36,7 +36,7 @@ def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
 
     return G
 
-def QR(A0: np.ndarray, epsilon: float=1e-6) -> "tuple[np.ndarray, np.ndarray]":
+def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray]":
     n = A0.shape[0]
 
     I = np.eye(n)
@@ -54,7 +54,7 @@ def QR(A0: np.ndarray, epsilon: float=1e-6) -> "tuple[np.ndarray, np.ndarray]":
             i, j = (m, m+1)
             c, s = cos_and_sin(alpha, beta)
             G = givens_matrix(n, i, j, c, s)
-            mu = wilkinson_shift(alpha, alpha_prev, beta_prev) if iter_count > 1 else 0.0
+            mu = wilkinson_shift(alpha, alpha_prev, beta_prev) if (shifted and iter_count > 1) else 0.0
 
             R = R - mu*I
             Q = Q @ G.T
@@ -79,14 +79,14 @@ def QR(A0: np.ndarray, epsilon: float=1e-6) -> "tuple[np.ndarray, np.ndarray]":
     return (Q, R)
 
 
-A = np.array(
-    [[4., 3., 0.],
-     [3., 4., 3.],
-     [0., 3., 4.]]
-)
+#A = np.array(
+#    [[4., 3., 0.],
+#     [3., 4., 3.],
+#     [0., 3., 4.]]
+#)
 
-Q, R = QR(A)
-Q_np, R_np = np.linalg.qr(A)
+#Q, R = QR(A)
+#Q_np, R_np = np.linalg.qr(A)
 
-print('Self\nQ =\n', Q, '\n', 'R =\n', R)
-print('Numpy\nQ =\n', Q_np, '\n', 'R =\n', R_np)
+#print('Self\nQ =\n', Q, '\n', 'R =\n', R)
+#print('Numpy\nQ =\n', Q_np, '\n', 'R =\n', R_np)
