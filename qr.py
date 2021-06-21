@@ -37,11 +37,11 @@ def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
     return G
 
 def givens_rotations(A):
-    n = A.shape[0]    
-    R = np.copy(A)    
+    n = A.shape[0]
+    R = np.copy(A)
     Q = np.eye(n)
 
-    for m in range(n-1):
+    for m in range(0, n-1, 1):
         alpha = R[m, m]
         beta = R[m+1, m]
 
@@ -54,7 +54,7 @@ def givens_rotations(A):
 
     return (Q, R)
 
-def QR(A0: np.ndarray, epsilon: float=1e-16, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray]":
+def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray]":
     n = A0.shape[0]
 
     I = np.eye(n)
@@ -63,24 +63,22 @@ def QR(A0: np.ndarray, epsilon: float=1e-16, shifted: bool=True) -> "tuple[np.nd
 
     k = 0
 
-    for m in range(n-1, 0, -1):       
+    for m in range(n-1, 0, -1):
         beta = A[m, m-1]
 
         while np.abs(beta) >= epsilon:
-
             mu = wilkinson_shift(alpha, beta, alpha_last) if (shifted and k > 0) else 0.0
-
-            A = A - mu*I
-            Q, R = givens_rotations(A)
+            Q, R = givens_rotations(A - mu*I)
 
             A = R @ Q + mu*I
             V = V @ Q
 
             beta = A[m, m-1]
-
             alpha = A[m-1, m-1]
             alpha_last = A[m, m]
 
             k += 1
+
+        A[m, m-1] = 0
 
     return (V, A, k)
