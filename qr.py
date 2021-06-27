@@ -8,12 +8,14 @@ def sign(x: float) -> float:
     else:
         return -1.0
 
+
 def wilkinson_shift(alpha: float, beta: float, alpha_last: float) -> float:
     "Returns "
     d = (alpha - alpha_last) / 2.0
     mu = alpha_last + d - sign(d) * np.sqrt(d**2 + beta**2)
 
     return mu
+
 
 def cos_and_sin(alpha: float, beta: float) -> "tuple[float, float]":
     if np.abs(alpha) > np.abs(beta):
@@ -27,6 +29,7 @@ def cos_and_sin(alpha: float, beta: float) -> "tuple[float, float]":
 
     return (c, s)
 
+
 def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
     G = np.eye(n)
 
@@ -37,6 +40,7 @@ def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
     G[j, i] = s
 
     return G
+
 
 def givens_rotations(A: np.ndarray) -> "tuple[np.ndarray, np.ndarray]":
     "Through Given's Rotation Method, do one step of QR decopomsition"
@@ -58,9 +62,8 @@ def givens_rotations(A: np.ndarray) -> "tuple[np.ndarray, np.ndarray]":
     
     R = np.triu(R)
 
-    print(R)
-
     return (Q, R)
+
 
 def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray]":
     n = A0.shape[0]
