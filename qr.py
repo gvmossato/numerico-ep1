@@ -1,8 +1,20 @@
+"""Módulo de suporte para realização das tarefas."""
+
+
 import numpy as np
 
 
 def sign(x: float) -> float:
-    "Sign function: returns 1.0 if x is greater than or equal to zero and -1.0 otherwise."
+    """
+    Função sinal: retorna 1.0 se x é maior ou igual a zero, -1.0 caso contrário.
+    
+    Args:
+        x (float): valor a ser comparado com zero.
+    
+    Returns:
+        float: 1.0 ou -1.0, a depender do valor de x.
+    """
+
     if x >= 0.0:
         return 1.0
     else:
@@ -10,7 +22,18 @@ def sign(x: float) -> float:
 
 
 def wilkinson_shift(alpha: float, beta: float, alpha_last: float) -> float:
-    "Returns "
+    """
+    Calcula o valor do deslocamento espectral de acordo com a heurística de Wilkinson.
+
+    Args:
+        alpha (float): (n-1)-ésimo elemento da diagonal principal.
+        beta (float): n-ésimo elemento da diagonal abaixo da principal.
+        alpha_last (float): n-ésimo elemento da diagonal principal.
+    
+    Returns:
+        float: valor do deslocamento espectral.
+    """
+
     d = (alpha - alpha_last) / 2.0
     mu = alpha_last + d - sign(d) * np.sqrt(d**2 + beta**2)
 
@@ -18,6 +41,18 @@ def wilkinson_shift(alpha: float, beta: float, alpha_last: float) -> float:
 
 
 def cos_and_sin(alpha: float, beta: float) -> "tuple[float, float]":
+    """
+    Calcula os valores de cosseno e seno que compõem uma dada matriz de rotação de Givens.
+    Utilizou-se o "método numericamente mais estável" tal como descrito no enunciado.
+
+    Args:
+        alpha (float): (n-1)-ésimo elemento da diagonal principal.
+        beta (float): n-ésimo elemento da diagonal abaixo da principal.
+    
+    Returns:
+        tuple: valor do cosseno (primeira posição) e do seno (segunda posição) em uma tupla.
+    """
+
     if np.abs(alpha) > np.abs(beta):
         tau = - beta / alpha
         c = 1.0 / np.sqrt(1.0 + tau**2)
@@ -30,8 +65,22 @@ def cos_and_sin(alpha: float, beta: float) -> "tuple[float, float]":
     return (c, s)
 
 
-def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
+def givens_matrix(n: int, i: int, c: float, s: float) -> np.ndarray:
+    """
+    Gera a matriz de rotação de Givens para duas linhas consecutivas doutra matriz.
+
+    Args:
+        n (int): dimensão da matriz a sofrer rotação (igual a dimensão da matriz de Givens).
+        i (int): índice da linha a sofrer rotação com i+1.
+        c (float): valor do cosseno calculado sobre alpha e beta.
+        s (float): valor do seno calculado sobre alpha e beta.
+    
+    Returns:
+        np.ndarray: matriz de rotação de Givens de ordem n.
+    """
+
     G = np.eye(n)
+    j = i+1
 
     G[i, i] = c
     G[j, j] = c
@@ -42,55 +91,87 @@ def givens_matrix(n: int, i: int, j: int, c: float, s: float) -> np.ndarray:
     return G
 
 
-def givens_rotations(A: np.ndarray) -> "tuple[np.ndarray, np.ndarray]":
-    "Through Given's Rotation Method, do one step of QR decopomsition"
-    n = A.shape[0]
-    Q = np.eye(n) # Initialize ortoghonal matrix
-    R = np.copy(A) # Non-inplace operations
+def givens_rotation(A: np.ndarray) -> "tuple[np.ndarray, np.ndarray]":
+    """
+    Realiza um passo da decomposição QR em matrizes tridiagonais simétricas por meio da rotação de Givens.
 
+    Args:
+        A (np.ndarray): matriz tridiagonal simétrica a ser decomposta em Q (ortonormal) e R (triangular superior).
+
+    Returns:
+        tuple: uma tupla com as matrizes Q (primeira posição) e R (segunda posição).
+    """
+
+    n = A.shape[0]
+    Q = np.eye(n) # Inicializa a matriz ortogonal
+    R = np.copy(A) # Operações não in-place
+
+    # Itera ao longo da diagonal principal (crescente)
     for m in range(0, n-1, 1):
         alpha = R[m, m]
         beta = R[m+1, m]
 
-        i, j = (m, m+1)
+        # Gera a matriz de rotação
         c, s = cos_and_sin(alpha, beta)
-        G = givens_matrix(n, i, j, c, s)
+        G = givens_matrix(n, m, c, s)
 
-        # Find Q and R
+        # Calcula Q e R
         Q = Q @ G.T
         R = G @ R
-    
-    R = np.triu(R)
+
+    # Assegura que R é triangular superior (previne erros de arredondamento)
+    R = np.triu(R) 
 
     return (Q, R)
 
 
 def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray]":
-    n = A0.shape[0]
-    k = 0
+    """
+    Por meio de decomposições QR com deslocamento espectral, calcula as matrizes Lambda e V tais que
+    V @ Lambda @ V.T == A0, sendo:
+    
+    - A0: tridiagonal simétrica;
+    - V: ortonormal, cujas colunas são autovetores de A0;
+    - Lambda: tridiagonal simétrica, cuja diagonal principal são autovalores de A0. 
 
-    A = np.copy(A0) # Non-inplace operations
-    V = np.eye(n)   # Initialize eigenvectors matrix
+    Args:
+        A0 (np.ndarray): matriz tridiagonal simétrica a ser decomposta.
+        epsilon (float): precisão mínima para determinação da convergência.
+        shifted (bool): aplica (True) ou não (False) os deslocamentos espectrais.
+
+    Returns:
+        tuple: tupla com a matriz V (primeira posição) e a matriz Lambda (segunda posição).
+    """
+
+    n = A0.shape[0]
+    k = 0 # Número de iterações até a convergência de todos os elementos
+
+    A = np.copy(A0) # Operações não in-place
+    V = np.eye(n)   # Inicializa matriz de autovetores
     I = np.eye(n)
 
+    # Itera ao longo da diagonal principal (decrescente)
     for m in range(n-1, 0, -1):
-        beta = A[m, m-1] # Element to be minimized
+        beta = A[m, m-1] # Elemento a ser minimizado (zerado)
 
-        while np.abs(beta) >= epsilon: # Loop until covergence of beta to approx. zero
+        # Loop até a convergência de beta
+        while np.abs(beta) >= epsilon: 
             mu = wilkinson_shift(alpha, beta, alpha_last) if (shifted and k > 0) else 0.0
-            Q, R = givens_rotations(A - mu*I) # Do QR decomposition
+            Q, R = givens_rotation(A - mu*I)
             
-            # Calculates new matrix
+            # Atualiza as matrizes
             A = R @ Q + mu*I
             V = V @ Q
             
-            # Update variables
+            # Atualiza variáveis
             beta = A[m, m-1]
             alpha = A[m-1, m-1]
             alpha_last = A[m, m]
 
-            k += 1 # New iteration
+            k += 1 # Nova iteração
 
-        A[m, m-1] = 0 # If while breaks, beta converged (considered equal to zero)
-
-    return (V, A, k)
+        A[m, m-1] = 0 # Quebra do laço while: beta convergiu (é nulo)
+    
+    Lambda = A
+    
+    return (V, Lambda, k)
