@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from EPLib import QR, gen_tridiagonal, gen_eign, print_table
+from EPLib import QR, gen_tridiagonal, gen_eign, print_table, normalize
 
 
 # ================ #
@@ -13,9 +13,10 @@ def run(epsilon, n_vals):
     count = 0
 
     results = []
-
+    valid = []
+    
     infos = {
-        '#' : [],
+        'Teste' : [],
         'Desloc.' : [],
         'n' : [],
         'k' : []
@@ -29,16 +30,17 @@ def run(epsilon, n_vals):
             Lambda = np.diag(R)
 
             results.append((Q, Lambda))
+            valid.append(gen_eign(n))
 
-            infos['#'].append(count)
+            infos['Teste'].append(str(count))
             infos['Desloc.'].append(shifted)
             infos['k'].append(k)
             infos['n'].append(n)
 
             count += 1
             progress = np.round(count/(2*amount) * 100, 2)
-            print(f"Progresso: {progress}%    ", end='\r')            
-        
+            print(f"Progresso: {progress}%    ", end='\r')
+
     print('Concluído! Comparação dos resultados:\n')
     print_table(infos)
 
@@ -59,31 +61,43 @@ def run(epsilon, n_vals):
             plt.ylabel('Iterações até a convergência (k)')
             plt.legend(['Com deslocamento', 'Sem deslocamento'])
             plt.show()
-
             break
 
         elif plot_graph.lower() == 'n':
             break
 
         else:
-            print('Entrada inválida.')
+            print('\33[91mEntrada inválida.\33[0m')
     
-#    # ======== #
-#    # Matrizes
-#    # ======== #
-#
-#    print('Matrizes finais encontradas:\n')
-#
-#    for i in range(len(infos['n'])):
-#        print(20*'=')
-#        print('Caso #{}: Deslocamento? {}; n={}; k={}')
-#        print('Autovalores=\n', )
-#        print('Autovetores=\n', )
-#
-#        print('\nValores esperados:')
-#        print('Autovalores=\n', )
-#        print('Autovetores=\n', )
-#
-#    return
-#
-#run(epsilon=1e-6, n_vals=[2, 4, 8, 16])
+    # ========================= #
+    # Autovalores e Autovetores #
+    # ========================= #
+
+    while True:
+        print('\nDeseja verificar autovalores e autovetores para algum teste?')
+        num = input("Entre com o número de um teste ou digite 'n' para finalizar: ")
+
+        if num.lower() == 'n':
+            break
+
+        elif num in infos['Teste']:
+            num = int(num)
+
+            print('\33[92m')
+            print('\n' + 50*'=')
+            print(f"> Teste #{infos['Teste'][num]}")
+            print(50*'=')
+            print('\33[0m')
+
+            print('\33[34m> OBTIDOS\33[0m')
+            print('Autovalores:\n', results[num][1], end='\n\n')
+            print('Autovetores:\n', results[num][0])
+
+            print('\33[34m\n> ESPERADOS\33[0m')
+            print('Autovalores:\n', valid[num][1], end='\n\n')
+            print('Autovetores:\n', valid[num][0])
+        
+        else:
+            print('\33[91mEntrada inválida.\33[0m')
+
+    return
