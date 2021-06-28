@@ -173,17 +173,29 @@ def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.nda
 # Tarefas                                       #
 # ============================================= #
 
+def normalize(matrix):
+    norm = np.sqrt(np.sum(matrix**2, axis=0))
+
+    return matrix / norm
+
+
 def gen_eign(n):
-    base_vec = np.arange(1, n+1, 1).reshape((1, n)) * np.pi/(n+1)
-    eigns = []
+    base_vec = np.arange(1, n+1, 1) * np.pi/(n+1)
+    base_vec = np.reshape(base_vec, (n, 1))
+    
+    eigs_vals = []
+    eign_vecs = []
 
     for j in range(1, n+1):
-        eign_val = 2 - 2*np.cos( j*np.pi / (n+1) )
-        eign_vec = np.sin(base_vec*j)
+        val = 2 * (1 - np.cos( j*np.pi / (n+1) ))
+        vec = np.sin(base_vec * j)
 
-        eigns.append((eign_val, eign_vec))
+        eigs_vals.append(val)
+        eign_vecs.append(vec)
 
-    return eigns
+    eign_vecs = normalize(np.hstack(eign_vecs))
+
+    return (eign_vecs, eigs_vals)
 
 
 def gen_tridiagonal(beta, alpha, gamma, n=None):
