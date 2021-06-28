@@ -1,6 +1,5 @@
 """Módulo de suporte para realização das tarefas."""
 
-
 import numpy as np
 
 
@@ -80,13 +79,12 @@ def givens_matrix(n: int, i: int, c: float, s: float) -> np.ndarray:
     """
 
     G = np.eye(n)
-    j = i+1
 
     G[i, i] = c
-    G[j, j] = c
+    G[i+1, i+1] = c
 
-    G[i ,j] = -s
-    G[j, i] = s
+    G[i, i+1] = -s
+    G[i+1, i] = s
 
     return G
 
@@ -108,19 +106,13 @@ def givens_rotation(A: np.ndarray) -> "tuple[np.ndarray, np.ndarray]":
 
     # Itera ao longo da diagonal principal (crescente)
     for m in range(0, n-1, 1):
-        alpha = R[m, m]
-        beta = R[m+1, m]
-
         # Gera a matriz de rotação
-        c, s = cos_and_sin(alpha, beta)
+        c, s = cos_and_sin(R[m, m], R[m+1, m])
         G = givens_matrix(n, m, c, s)
 
         # Calcula Q e R
         Q = Q @ G.T
         R = G @ R
-
-    # Assegura que R é triangular superior (previne erros de arredondamento)
-    R = np.triu(R) 
 
     return (Q, R)
 
@@ -152,21 +144,14 @@ def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.nda
 
     # Itera ao longo da diagonal principal (decrescente)
     for m in range(n-1, 0, -1):
-        beta = A[m, m-1] # Elemento a ser minimizado (zerado)
-
         # Loop até a convergência de beta
-        while np.abs(beta) >= epsilon: 
-            mu = wilkinson_shift(alpha, beta, alpha_last) if (shifted and k > 0) else 0.0
+        while np.abs(A[m, m-1]) >= epsilon: 
+            mu = wilkinson_shift(A[m-1, m-1], A[m, m-1], A[m, m]) if (shifted and k > 0) else 0.0
             Q, R = givens_rotation(A - mu*I)
             
             # Atualiza as matrizes
             A = R @ Q + mu*I
             V = V @ Q
-            
-            # Atualiza variáveis
-            beta = A[m, m-1]
-            alpha = A[m-1, m-1]
-            alpha_last = A[m, m]
 
             k += 1 # Nova iteração
 
