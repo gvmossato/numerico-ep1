@@ -1,7 +1,13 @@
+# ============================================= #
 # Módulo de suporte para realização das tarefas #
+# ============================================= #
 
 import numpy as np
 
+
+# ============================================= #
+# Algoritmo QR                                  #
+# ============================================= #
 
 def sign(x: float) -> float:
     """
@@ -161,3 +167,66 @@ def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.nda
     Lambda = A
     
     return (V, Lambda, k)
+
+
+# ============================================= #
+# Tarefas                                       #
+# ============================================= #
+
+def gen_eign(n):
+    base_vec = np.arange(1, n+1, 1).reshape((1, n)) * np.pi/(n+1)
+    eigns = []
+
+    for j in range(1, n+1):
+        eign_val = 2 - 2*np.cos( j*np.pi / (n+1) )
+        eign_vec = np.sin(base_vec*j)
+
+        eigns.append((eign_val, eign_vec))
+
+    return eigns
+
+
+def gen_tridiagonal(beta, alpha, gamma, n=None):
+    assert type(beta) == type(alpha) == type(gamma)
+
+    if n is not None:
+        assert isinstance(beta, (float, int))
+
+        b = (n-1) * [beta]
+        a = (n) * [alpha]
+        g = (n-1) * [gamma]
+
+        M = np.diag(b, k=-1)
+        M += np.diag(a, k=0)
+        M += np.diag(g, k=1)
+
+    else:
+        assert isinstance(beta, list)
+        assert len(beta) == len(alpha)-1 == len(gamma)
+
+        M = np.diag(beta, k=-1)
+        M += np.diag(alpha, k=0)
+        M += np.diag(gamma, k=1)
+
+    return M
+
+
+# ============================================= #
+# Miscelânia                                    #
+# ============================================= #
+
+def print_table(data):    
+    header_fields = list(data.keys())
+    table_vals = list(data.values())
+
+    row_shape = "| {:<10}"*len(header_fields) + " |" 
+
+    header = row_shape.format(*header_fields)
+    columns = np.array(table_vals).T
+
+    print(header)            # Cabeçalho
+    print('=' * len(header)) # Separador
+    for row_vals in columns: # Linhas
+        print(row_shape.format(*row_vals))
+    
+    return
