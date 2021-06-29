@@ -69,8 +69,3 @@ def run(task, X0=None, n=None):
     plt.show()
 
     return
-
-
-X0 = np.array([-2, -3, -1, -3, -1]).reshape((5, 1))
-
-run('b', n=5)

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from EPLib import QR, gen_tridiagonal, gen_eign, print_table, normalize
+from EPLib import QR, gen_tridiagonal, gen_eign, print_table, ctext
 
 
 # ================ #
@@ -24,8 +24,8 @@ def run(epsilon, n_vals):
 
     for shifted in [True, False]:
         for n in n_vals:
-            A = gen_tridiagonal(beta=-1, alpha=2, gamma=-1, n=n)
-            Q, R, k = QR(A, epsilon=epsilon, shifted=shifted)
+            A = gen_tridiagonal(alpha=2, beta=-1, n=n)
+            Q, R, k = QR(A, epsilon, shifted)
 
             Lambda = np.diag(R)
 
@@ -39,9 +39,11 @@ def run(epsilon, n_vals):
 
             count += 1
             progress = np.round(count/(2*amount) * 100, 2)
-            print(f"Progresso: {progress}%    ", end='\r')
 
-    print('Concluído! Comparação dos resultados:\n')
+            print(f"Progresso: {progress}%     ", end='\r')
+        
+    print()
+    print(f"\n{ctext('Concluído!', 'g')} Comparação dos resultados:\n")
     print_table(infos)
 
     # ==== #
@@ -83,21 +85,21 @@ def run(epsilon, n_vals):
         elif num in infos['Teste']:
             num = int(num)
 
-            print('\33[92m')
+            print('\033[35m') # magenta 
             print('\n' + 50*'=')
             print(f"> Teste #{infos['Teste'][num]}")
             print(50*'=')
-            print('\33[0m')
+            print('\033[0m')
 
-            print('\33[34m> OBTIDOS\33[0m')
+            print(ctext('> OBTIDOS', 'b'))
             print('Autovalores:\n', results[num][1], end='\n\n')
             print('Autovetores:\n', results[num][0])
 
-            print('\33[34m\n> ESPERADOS\33[0m')
+            print(ctext('> ESPERADOS', 'b'))
             print('Autovalores:\n', valid[num][1], end='\n\n')
             print('Autovetores:\n', valid[num][0])
         
         else:
-            print('\33[91mEntrada inválida.\33[0m')
+            print(ctext('Entrada inválida.', 'r'))
 
     return

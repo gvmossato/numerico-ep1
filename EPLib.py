@@ -198,27 +198,25 @@ def gen_eign(n):
     return (eign_vecs, eigs_vals)
 
 
-def gen_tridiagonal(beta, alpha, gamma, n=None):
-    assert type(beta) == type(alpha) == type(gamma)
+def gen_tridiagonal(alpha, beta, n=None):
+    assert type(alpha) == type(beta)
 
     if n is not None:
-        assert isinstance(beta, (float, int))
+        assert isinstance(alpha, (float, int))
 
-        b = (n-1) * [beta]
-        a = (n) * [alpha]
-        g = (n-1) * [gamma]
+        alpha_vec = n * [alpha]
+        beta_vec = (n-1) * [beta]
 
-        M = np.diag(b, k=-1)
-        M += np.diag(a, k=0)
-        M += np.diag(g, k=1)
+        M = np.diag(beta_vec, k=-1)
+        M += np.diag(alpha_vec, k=0)        
+        M += np.diag(beta_vec, k=1)
 
     else:
-        assert isinstance(beta, list)
-        assert len(beta) == len(alpha)-1 == len(gamma)
+        assert isinstance(alpha, list) and len(alpha) == len(beta)+1
 
         M = np.diag(beta, k=-1)
         M += np.diag(alpha, k=0)
-        M += np.diag(gamma, k=1)
+        M += np.diag(beta, k=1)
 
     return M
 
@@ -242,3 +240,19 @@ def print_table(data):
         print(row_shape.format(*row_vals))
     
     return
+
+
+def ctext(text, tag):
+    color_dict = {
+        'r' : '\033[31m', # red
+        'g' : '\033[32m', # green
+        'y' : '\033[33m', # yellow
+        'b' : '\033[34m', # blue
+        'm' : '\033[35m', # magenta
+        'c' : '\033[36m'  # cyan
+    }
+
+    text = color_dict[tag] + text + '\033[0m'
+
+    return text
+    
