@@ -23,4 +23,4 @@ MAP3121 – Métodos Numéricos e Aplicações
 
 interface.start()
 
-print('\nExecução finalizada.')
+print('\n\033[31mExecução finalizada.\033[0m')

@@ -84,9 +84,9 @@ def run(epsilon, n_vals):
 
     while True: # Permite visualização das saídas de forma concisa
         print(f"\nDeseja verificar {ctext('autovalores', 'm')} e {ctext('autovetores', 'm')} para algum teste?")
-        num = input(f"Entre com o {ctext('número de um teste', 'y')} ou digite {ctext('s', 'r')} para sair: ")
+        num = input(f"Entre com o {ctext('número de um teste', 'y')} ou digite {ctext('sair', 'r')} para encerrar a tarefa: ")
 
-        if num.lower() == 's':
+        if num.lower() == 'sair':
             break
 
         elif num in infos['Teste']:

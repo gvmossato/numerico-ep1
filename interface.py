@@ -29,7 +29,7 @@ def start():
 
         if task == '1':
             while True:
-                print(f"Escolha uma das opções abaixo ou digite {ctext('voltar', 'r')} para retroceder.")
+                print(f"\nEscolha uma das opções abaixo ou digite {ctext('voltar', 'r')} para retroceder.")
                 print(f"\n{ctext('1)', 'm')} Executar o caso definido na tarefa A do enunciado.")
                 print(f"{ctext('2)', 'm')} Customizar um caso próprio.")
 
@@ -81,7 +81,7 @@ def start():
                     print(ctext('Entrada inválida.', 'r'))
 
             # Escolha dos parâmtros gerais (precisão)
-            epsilon = float(input(f"\nPrecisão para a convergência (pressione {ctext('Enter', 'g')} para utilizar {ctext('epsilon=1e-6', 'g')}):") or '1e-6')
+            epsilon = float(input(f"\nPrecisão para a convergência (pressione {ctext('Enter', 'g')} para utilizar {ctext('epsilon = 1e-6', 'g')}): ") or '1e-6')
 
             if epsilon < np.finfo(float).eps:
                 print(ctext(f"AVISO: Impossível garantir precisão de {epsilon}, será utilizada a precisão de máquina: {np.finfo(float).eps}", 'r'))
@@ -89,7 +89,7 @@ def start():
 
             # Escolha de uma das tarefas
             while True:
-                print(f"Escolha uma das simulações abaixo ou digite {ctext('voltar', 'r')} para retroceder.")
+                print(f"\nEscolha uma das simulações abaixo ou digite {ctext('voltar', 'r')} para retroceder.")
                 print(f"{ctext('1)', 'm')} Executar o caso definido na tarefa B do enunciado.")
                 print(f"{ctext('2)', 'm')} Executar o caso definido na tarefa C do enunciado.")
                 print(f"{ctext('3)', 'm')} Customizar um caso próprio.")
@@ -114,7 +114,7 @@ def start():
                         X0 = np.array([-2, -3, -1, -3, -1])
                         X0 = np.reshape(X0, (X0.shape[0], 1))
 
-                        taskBC.run('B', shifted, X0, None)
+                        taskBC.run('B', epsilon, shifted, X0, None)
                         break
 
                     # Executar tarefa B com segundo X0
@@ -122,14 +122,14 @@ def start():
                         X0 = np.array([1, 10, -4, 3, -2])
                         X0 = np.reshape(X0, (X0.shape[0], 1))
 
-                        taskBC.run('B', shifted, X0, None)
+                        taskBC.run('B', epsilon, shifted, X0, None)
                         break
                     
                     # Executar tarefa B com terceiro X0
                     elif B_X0_opt == '3': 
                         n = 5
 
-                        taskBC.run('B', shifted, None, n)
+                        taskBC.run('B', epsilon, shifted, None, n)
                         break
 
                     # Usuário não escolheu um X0 na tarefa B
@@ -153,7 +153,7 @@ def start():
                         X0 = np.array([-2, -3, -1, -3, -1, -2, -3, -1, -3, -1])
                         X0 = np.reshape(X0, (X0.shape[0], 1))
 
-                        taskBC.run('C', shifted, X0, None)
+                        taskBC.run('C', epsilon, shifted, X0, None)
                         break
 
                     # Executar tarefa C com segundo X0
@@ -161,14 +161,14 @@ def start():
                         X0 = np.array([ 1, 10, -4,  3, -2,  1, 10, -4,  3, -2])
                         X0 = np.reshape(X0, (X0.shape[0], 1))
 
-                        taskBC.run('C', shifted, X0, None)
+                        taskBC.run('C', epsilon, shifted, X0, None)
                         break
 
                     # Executar tarefa C com terceiro X0
                     elif C_X0_opt == '3': 
                         n = 10
 
-                        taskBC.run('C', shifted, None, n)
+                        taskBC.run('C', epsilon, shifted, None, n)
                         break
                     
                     # Usuário não escolheu um X0 na tarefa C
@@ -180,12 +180,12 @@ def start():
                 # ======================== #
 
                 elif BC_opt == '3':
-                    k_type = input(f"A constante elástica das molas deve ser definida como na tarefa B ou como na tarefa C? ")
-                    X0 = input(f"Entre com os valores do vetor X0 separados por espaço: ")
+                    k_type = input(f"A constante elástica das molas deve ser definida como na tarefa {ctext('B', 'y')} ou como na tarefa {ctext('C', 'y')}? ")
+                    X0 = input(f"Entre com os {ctext('valores do vetor X0', 'y')} separados por espaço: ")
                     X0 = np.array([float(x) for x in X0.split(' ')])
                     X0 = np.reshape(X0, (X0.shape[0], 1))
 
-                    taskBC.run(k_type, shifted, X0, None)
+                    taskBC.run(k_type, epsilon, shifted, X0, None)
                     break
 
                 ### Retroceder ###
