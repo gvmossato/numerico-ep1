@@ -52,9 +52,10 @@ def run(epsilon, n_vals):
 
     while True:
         # Hacky: input com entrada padrão 's'
-        plot_graph = input('\nExibir gráfico de iterações por dimensão da matriz? ([s]/n): ') or 's'
+        plot_graph = input(f"\nExibir gráfico de iterações por dimensão da matriz? ([{ctext('s', 'g')}]/{ctext('n', 'r')}): ") or 's'
 
         if plot_graph.lower() == 's':
+            plt.style.use('seaborn')
             plt.plot(n_vals, infos['k'][ :amount], marker='o') # Com deslocamento
             plt.plot(n_vals, infos['k'][amount: ], marker='o') # Sem deslocamento
 
@@ -69,15 +70,15 @@ def run(epsilon, n_vals):
             break
 
         else:
-            print('\33[91mEntrada inválida.\33[0m')
+            print(ctext('Entrada inválida.', 'r'))
     
     # ========================= #
     # Autovalores e Autovetores #
     # ========================= #
 
     while True:
-        print('\nDeseja verificar autovalores e autovetores para algum teste?')
-        num = input("Entre com o número de um teste ou digite 'n' para finalizar: ")
+        print(f"\nDeseja verificar {ctext('autovalores', 'm')} e {ctext('autovetores', 'm')} para algum teste?")
+        num = input(f"Entre com o {ctext('número de um teste', 'y')} ou digite {ctext('n', 'r')} para finalizar: ")
 
         if num.lower() == 'n':
             break
@@ -95,7 +96,7 @@ def run(epsilon, n_vals):
             print('Autovalores:\n', results[num][1], end='\n\n')
             print('Autovetores:\n', results[num][0])
 
-            print(ctext('> ESPERADOS', 'b'))
+            print(ctext('\n> ESPERADOS', 'b'))
             print('Autovalores:\n', valid[num][1], end='\n\n')
             print('Autovetores:\n', valid[num][0])
         

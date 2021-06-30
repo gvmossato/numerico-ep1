@@ -123,7 +123,7 @@ def givens_rotation(A: np.ndarray) -> "tuple[np.ndarray, np.ndarray]":
     return (Q, R)
 
 
-def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray]":
+def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.ndarray, np.ndarray, int]":
     """
     Por meio de decomposições QR com deslocamento espectral, calcula as matrizes Lambda e V tais que
     V @ Lambda @ V.T == A0, sendo:
@@ -179,7 +179,7 @@ def normalize(matrix):
     return matrix / norm
 
 
-def gen_eign(n):
+def gen_eign(n: int) -> "tuple[list, np.ndarray]":
     base_vec = np.arange(1, n+1, 1) * np.pi/(n+1)
     base_vec = np.reshape(base_vec, (n, 1))
     
@@ -225,7 +225,7 @@ def gen_tridiagonal(alpha, beta, n=None):
 # Miscelânia                                    #
 # ============================================= #
 
-def print_table(data):    
+def print_table(data: dict) -> None:    
     header_fields = list(data.keys())
     table_vals = list(data.values())
 
@@ -242,7 +242,7 @@ def print_table(data):
     return
 
 
-def ctext(text, tag):
+def ctext(text: str, tag: str) -> str:
     color_dict = {
         'r' : '\033[31m', # red
         'g' : '\033[32m', # green
@@ -255,4 +255,3 @@ def ctext(text, tag):
     text = color_dict[tag] + text + '\033[0m'
 
     return text
-    

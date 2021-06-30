@@ -12,7 +12,7 @@ def run(task, X0=None, n=None):
     elif task.lower() == 'c':
         k = lambda i: 40 + 2*(-1)**i
     else:
-        raise ValueError("Erro: `task` deve ser 'B' ou 'C' (case insensitive)")
+        raise ValueError("Erro: `task` deve ser 'B' ou 'C' e não {task} (case insensitive).")
 
     if n is None:
         n = X0.shape[0]
@@ -23,9 +23,9 @@ def run(task, X0=None, n=None):
     main_diag = [k_vals[i] + k_vals[i+1] for i in range(len(k_vals)-1)]
     sub_diag = (-1 * np.array(k_vals[1:-1])).tolist()
 
-    A = 1/m * gen_tridiagonal(sub_diag, main_diag, sub_diag)
+    A = 1/m * gen_tridiagonal(main_diag, sub_diag, None)
     
-    Q, R, _ = QR(A, epsilon=1e-26, shifted=False)
+    Q, R, _ = QR(A, epsilon=1e-6, shifted=True)
 
     W = np.sqrt(np.diag(R)).reshape((n, 1))
 
