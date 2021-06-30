@@ -2,7 +2,6 @@
 # Módulo de suporte para realização das tarefas #
 # ============================================= #
 
-from _typeshed import NoneType
 import numpy as np
 
 
@@ -241,7 +240,7 @@ def gen_tridiagonal(alpha, beta, n=None) -> np.ndarray:
     Args:
         alpha (int/float/list): elemento(s) da diagonal principal.
         beta (int/float/list): elemento(s) das diagonais abaixo e acima da principal.
-        n (int/NoneType): se int, n é a dimensão da matriz; se None, a dimensão deve
+        n (int/None): se int, n é a dimensão da matriz; se None, a dimensão deve
                           estar implícita em alpha e beta.
 
     Returns:
@@ -278,7 +277,7 @@ def gen_tridiagonal(alpha, beta, n=None) -> np.ndarray:
 # Miscelânia                                    #
 # ============================================= #
 
-def print_table(data: dict) -> NoneType:
+def print_table(data: dict) -> None:
     """
     Imprime linha a linha um dicionário de listas formatado
     como uma tabela.

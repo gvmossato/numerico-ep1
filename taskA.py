@@ -1,3 +1,7 @@
+# ============================== #
+# Módulo de execução da tarefa A #
+# ============================== #
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,19 +13,21 @@ from EPLib import QR, gen_tridiagonal, gen_eign, print_table, ctext
 # ================ #
 
 def run(epsilon, n_vals):
-    amount = len(n_vals)
-    count = 0
+    amount = len(n_vals) # Quantidade de execuções únicas
+    count = 0            # Conta a execução atual
 
-    results = []
-    valid = []
+    results = [] # Armazena resultado das execuções
+    valid = []   # Armazena autovalores e autovetores analiticamente corretos
     
+    # Armazena demais informações das execuções
     infos = {
-        'Teste' : [],
-        'Desloc.' : [],
-        'n' : [],
-        'k' : []
+        'Teste' : [],   # Número do teste (execução)
+        'Desloc.' : [], # Com ou sem deslocamento
+        'n' : [],       # Dimensão da matriz
+        'k' : []        # Iterações
     }
 
+    # Para cada n, executa com e sem deslocamento
     for shifted in [True, False]:
         for n in n_vals:
             A = gen_tridiagonal(alpha=2, beta=-1, n=n)
@@ -44,18 +50,18 @@ def run(epsilon, n_vals):
         
     print()
     print(f"\n{ctext('Concluído!', 'g')} Comparação dos resultados:\n")
-    print_table(infos)
+    print_table(infos) # Imprime a tabela de informações
 
     # ==== #
     # Plot #
     # ==== #
 
     while True:
-        # Hacky: input com entrada padrão 's'
+        # Input com entrada padrão 's'
         plot_graph = input(f"\nExibir gráfico de iterações por dimensão da matriz? ([{ctext('s', 'g')}]/{ctext('n', 'r')}): ") or 's'
 
-        if plot_graph.lower() == 's':
-            plt.style.use('seaborn')
+        if plot_graph.lower() == 's': # Exibe gráfico
+            plt.style.use('seaborn')  # Estilo: 'seaborn'
             plt.plot(n_vals, infos['k'][ :amount], marker='o') # Com deslocamento
             plt.plot(n_vals, infos['k'][amount: ], marker='o') # Sem deslocamento
 
@@ -66,7 +72,7 @@ def run(epsilon, n_vals):
             plt.show()
             break
 
-        elif plot_graph.lower() == 'n':
+        elif plot_graph.lower() == 'n': # Pula exibição do gráfico
             break
 
         else:
@@ -76,17 +82,17 @@ def run(epsilon, n_vals):
     # Autovalores e Autovetores #
     # ========================= #
 
-    while True:
+    while True: # Permite visualização das saídas de forma concisa
         print(f"\nDeseja verificar {ctext('autovalores', 'm')} e {ctext('autovetores', 'm')} para algum teste?")
-        num = input(f"Entre com o {ctext('número de um teste', 'y')} ou digite {ctext('n', 'r')} para finalizar: ")
+        num = input(f"Entre com o {ctext('número de um teste', 'y')} ou digite {ctext('s', 'r')} para sair: ")
 
-        if num.lower() == 'n':
+        if num.lower() == 's':
             break
 
         elif num in infos['Teste']:
             num = int(num)
 
-            print('\033[35m') # magenta 
+            print('\033[35m')
             print('\n' + 50*'=')
             print(f"> Teste #{infos['Teste'][num]}")
             print(50*'=')
