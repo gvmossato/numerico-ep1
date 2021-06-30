@@ -2,6 +2,7 @@
 # Módulo de suporte para realização das tarefas #
 # ============================================= #
 
+from _typeshed import NoneType
 import numpy as np
 
 
@@ -173,19 +174,46 @@ def QR(A0: np.ndarray, epsilon: float=1e-6, shifted: bool=True) -> "tuple[np.nda
 # Tarefas                                       #
 # ============================================= #
 
-def normalize(matrix):
-    norm = np.sqrt(np.sum(matrix**2, axis=0))
+def normalize(matrix: np.ndarray) -> np.ndarray:
+    """
+    Normaliza as colunas de uma matriz in-place por meio da  
+    norma Euclidiana para um vetor do R^n.
 
-    return matrix / norm
+    Args:
+        matrix (np.ndarray): matriz a ter suas colunas normalizadas.
+
+    Returns:
+        np.ndarray: matriz com as colunas normalizadas.
+    """
+
+    norm = np.sqrt(np.sum(matrix**2, axis=0))
+    matrix = matrix / norm
+
+    return matrix
 
 
 def gen_eign(n: int) -> "tuple[list, np.ndarray]":
+    """
+    Gera autovalores e autovetores (analitacamente conhecidos) para uma 
+    matriz tridiagonal simétrica cujos elementos da diagonal principal são 
+    todos iguais a 2 e das diagonais abaixo e acima dessa são iguais a -1.
+
+    Args:
+        n (int): dimensão da matriz tridiagonal simétrica.
+
+    Returns:
+        tuple: lista de autovalores da matriz (primeira posição) e uma matriz
+        cujas colunas são os respectivos autovetores associados (segunda posição).
+    """
+
+    # Vetor base (constante) para calcular autovetores 
     base_vec = np.arange(1, n+1, 1) * np.pi/(n+1)
     base_vec = np.reshape(base_vec, (n, 1))
     
-    eigs_vals = []
-    eign_vecs = []
+    eigs_vals = [] # Armazena autovalores
+    eign_vecs = [] # Armazena autovetores
 
+    # Gera autovalores e autovetores
     for j in range(1, n+1):
         val = 2 * (1 - np.cos( j*np.pi / (n+1) ))
         vec = np.sin(base_vec * j)
@@ -193,27 +221,52 @@ def gen_eign(n: int) -> "tuple[list, np.ndarray]":
         eigs_vals.append(val)
         eign_vecs.append(vec)
 
+    # Concatena uma lista de vetores coluna em uma matriz, normalizando-a
     eign_vecs = normalize(np.hstack(eign_vecs))
 
     return (eign_vecs, eigs_vals)
 
 
-def gen_tridiagonal(alpha, beta, n=None):
+def gen_tridiagonal(alpha, beta, n=None) -> np.ndarray:
+    """
+    Gera uma matriz diagonal simétrica.
+    
+    Se alpha e beta forem listas, as insere como diagonal principal (alpha)
+    e diagonais acima e abaixo dessa (beta) numa matriz de zeros.
+
+    Se alpha e beta forem números, cria uma matriz de zeros com dimensão n 
+    em que os elementos da diagonal princpal são iguais a alpha e os da
+    diagonais axima e abaixo dessa são iguais a beta. 
+
+    Args:
+        alpha (int/float/list): elemento(s) da diagonal principal.
+        beta (int/float/list): elemento(s) das diagonais abaixo e acima da principal.
+        n (int/NoneType): se int, n é a dimensão da matriz; se None, a dimensão deve
+                          estar implícita em alpha e beta.
+
+    Returns:
+        np.ndarray: matriz diagonal simétrica.
+    """
+
     assert type(alpha) == type(beta)
 
-    if n is not None:
-        assert isinstance(alpha, (float, int))
-
+    if isinstance(alpha, (float, int)):
+        assert n is not None
+        
+        # Cria vetores baseado nos valores passados
         alpha_vec = n * [alpha]
         beta_vec = (n-1) * [beta]
-
+        
+        # Insere vetores em uma matriz de zeros
         M = np.diag(beta_vec, k=-1)
         M += np.diag(alpha_vec, k=0)        
         M += np.diag(beta_vec, k=1)
 
-    else:
-        assert isinstance(alpha, list) and len(alpha) == len(beta)+1
+    elif isinstance(alpha, list):
+        assert len(alpha) == len(beta)+1
+        assert n is None
 
+        # Insere vetores em uma matriz de zeros
         M = np.diag(beta, k=-1)
         M += np.diag(alpha, k=0)
         M += np.diag(beta, k=1)
@@ -225,10 +278,19 @@ def gen_tridiagonal(alpha, beta, n=None):
 # Miscelânia                                    #
 # ============================================= #
 
-def print_table(data: dict) -> None:    
+def print_table(data: dict) -> NoneType:
+    """
+    Imprime linha a linha um dicionário de listas formatado
+    como uma tabela.
+
+    Args:
+        data (dict): dicionário de listas a ser impresso.
+    """
+
     header_fields = list(data.keys())
     table_vals = list(data.values())
 
+    # Células com até 10 caracteres alinhados à esquerda
     row_shape = "| {:<10}"*len(header_fields) + " |" 
 
     header = row_shape.format(*header_fields)
@@ -243,15 +305,30 @@ def print_table(data: dict) -> None:
 
 
 def ctext(text: str, tag: str) -> str:
+    """
+    Aplica cor a uma string a ser impressa no terminal, através de tags pré-definidas.
+    As cores podem sofrer alterações conforme as configurações do terminal do usuário.
+
+    Args:
+        text (str): texto a ser colorido.
+        tag (str): identificador que mapeia a cor desejada a um código ASCII; tags válidas:
+                   'r' --> Vermelho; 'g' --> Verde; 'y' --> Amarelo; 'b' --> Azul;
+                   'm' --> Magenta; 'c' --> Ciano.
+    
+    Returns:
+        str: string idêntica a text, exceto pelas tags de cor.
+    """
+
     color_dict = {
-        'r' : '\033[31m', # red
-        'g' : '\033[32m', # green
-        'y' : '\033[33m', # yellow
-        'b' : '\033[34m', # blue
-        'm' : '\033[35m', # magenta
-        'c' : '\033[36m'  # cyan
+        'r' : '\033[31m', # Red
+        'g' : '\033[32m', # Green
+        'y' : '\033[33m', # Yellow
+        'b' : '\033[34m', # Blue
+        'm' : '\033[35m', # Magenta
+        'c' : '\033[36m'  # Cyan
     }
 
+    # Aplica a tag de cor e reseta para a cor padrão do terminal do usuário.
     text = color_dict[tag] + text + '\033[0m'
 
     return text
