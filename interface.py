@@ -39,7 +39,7 @@ def start():
                  # Executar a tarefa A como no enunciado
                 if A_opt == '1':
                     epsilon = 1e-6
-                    n_vals = [2, 4, 8, 16, 32, 64]
+                    n_vals = [4, 8, 16, 32]
                 
                     taskA.run(epsilon, n_vals)
                     break
@@ -81,7 +81,7 @@ def start():
                     print(ctext('Entrada inválida.', 'r'))
 
             # Escolha dos parâmtros gerais (precisão)
-            epsilon = float(input(f"\nPrecisão para a convergência (pressione {ctext('Enter', 'g')} para utilizar {ctext('epsilon = 1e-6', 'g')}): ") or '1e-6')
+            epsilon = float(input(f"Entre com a precisão para a convergência (pressione {ctext('Enter', 'g')} para utilizar {ctext('epsilon = 1e-6', 'g')}): ") or '1e-6')
 
             if epsilon < np.finfo(float).eps:
                 print(ctext(f"AVISO: Impossível garantir precisão de {epsilon}, será utilizada a precisão de máquina: {np.finfo(float).eps}", 'r'))
@@ -180,12 +180,47 @@ def start():
                 # ======================== #
 
                 elif BC_opt == '3':
-                    k_type = input(f"A constante elástica das molas deve ser definida como na tarefa {ctext('B', 'y')} ou como na tarefa {ctext('C', 'y')}? ")
-                    X0 = input(f"Entre com os {ctext('valores do vetor X0', 'y')} separados por espaço: ")
-                    X0 = np.array([float(x) for x in X0.split(' ')])
-                    X0 = np.reshape(X0, (X0.shape[0], 1))
 
-                    taskBC.run(k_type, epsilon, shifted, X0, None)
+                    # Escolher a dimensão do vetor X0 ou sua dimensão
+                    while True:
+                        print(f"Deseja entrar com os deslocamentos iniciais ou com a dimensão desse vetor?")
+                        print(f"{ctext('1)', 'g')} Digitar os valores do deslocamento inicial (elementos de X0).")
+                        print(f"{ctext('2)', 'g')} Entrar apenas com a dimensão do vetor X0 (n).")
+
+                        BC_main_param_opt = input(f"\nEntre com {ctext('1', 'g')} ou {ctext('2', 'g')}: ")
+
+                        # Entrar com os valores de X0
+                        if BC_main_param_opt == '1':
+                            X0 = input(f"\nEntre com os valores do vetor {ctext('X0', 'y')} separados por espaço: ")
+                            X0 = np.array([float(x) for x in X0.split(' ')])
+                            X0 = np.reshape(X0, (X0.shape[0], 1))
+                            n = None
+                            break
+                        
+                        # Entrar com a dimensão do vetor X0
+                        elif BC_main_param_opt == '2':
+                            n = int(input(f"\nEntre com a dimensão {ctext('n', 'y')} do vetor: "))
+                            X0 = None
+                            print('Será utilizado como X0 o modo de vibração associado a maior frequência.')
+                            break
+                        
+                        # Usuário não escolheu nem os valores do vetor nem sua dimensão
+                        else:
+                            print(ctext('Entrada inválida.', 'r'))
+                    
+                    # Escolher qual deve ser a lei de formação para k
+                    while True:
+                        print(f"\nA constante elástica das molas deve ser definida como na tarefa {ctext('B', 'y')} ou como na tarefa {ctext('C', 'y')}? ")
+                        k_type = input(f"Entre com {ctext('B', 'y')} ou {ctext('C', 'y')} (case insensitive): ")
+
+                        # Usuário não escolheu uma entrada válida
+                        if k_type.lower() != 'b' and k_type.lower() != 'c':
+                            print(ctext('Entrada inválida.', 'r'))
+                        # Escolheu 'b' ou 'c'
+                        else:
+                            break
+
+                    taskBC.run(k_type, epsilon, shifted, X0, n)
                     break
 
                 ### Retroceder ###

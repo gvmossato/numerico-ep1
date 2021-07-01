@@ -5,8 +5,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from EPLib import QR, gen_tridiagonal
+from EPLib import QR, gen_tridiagonal, ctext
 
+
+# ================ #
+# Executa a tarefa #
+# ================ #
 
 def run(task, epsilon, shifted, X0=None, n=None):
     # XOR: somente um desses deve ser None
@@ -58,30 +62,54 @@ def run(task, epsilon, shifted, X0=None, n=None):
     # Plot #
     # ==== #
 
-    plt.style.use('seaborn')                # Estilo: 'seaborn'
-    plt.rcParams["axes.edgecolor"] = "0.65" # Contorno cinza
-    plt.rcParams["axes.linewidth"] = 1.25   # com espessura 1.25
+    while True:
+        # Input com entrada padrão 's'
+        plot_graph = input(f"\nExibir gráfico de deslocamento por tempo para as massas? ([{ctext('s', 'g')}]/{ctext('n', 'r')}): ") or 's'
+        print()
 
-    # Gera subplots
-    fig, axs = plt.subplots(n, 1, sharex=True, sharey=True)
-    fig.subplots_adjust(hspace=0)
+        if plot_graph.lower() == 's': # Exibe gráfico
 
-    # Gera plot invisível para agrupamento dos demais
-    overall = fig.add_subplot(111, frameon=False)
-    overall.grid(False)
-    overall.set_xticks([])
-    overall.set_yticks([])
+            plt.style.use('seaborn')                # Estilo: 'seaborn'
+            plt.rcParams["axes.edgecolor"] = "0.65" # Contorno cinza
+            plt.rcParams["axes.linewidth"] = 1.25   # com espessura 1.25
 
-    overall.set_title(f'Simulações para X(0)ᵀ = {X0.T}')
-    overall.set_xlabel('Tempo (s)', labelpad=25)
-    overall.set_ylabel('Deslocamento', labelpad=35)
+            # Gera subplots
+            fig, axs = plt.subplots(n, 1, sharex=True, sharey=True)
+            fig.subplots_adjust(hspace=0)
 
-    # Insere dados nos plots
-    for i in range(1, n+1, 1):
-        axs[i-1].plot(t_range[0, : ], X[i-1, : ])
-        axs[i-1].yaxis.set_label_position("right")
-        axs[i-1].set_ylabel(f'Massa {i}', rotation=270, labelpad=15)  
+            # Gera plot invisível para agrupamento dos demais
+            overall = fig.add_subplot(111, frameon=False)
+            overall.grid(False)
+            overall.set_xticks([])
+            overall.set_yticks([])
 
-    plt.show()
+            overall.set_title(f'Simulações para X(0)ᵀ = {X0.T}')
+            overall.set_xlabel('Tempo (s)', labelpad=25)
+            overall.set_ylabel('Deslocamento (m)', labelpad=35)
 
+            # Insere dados nos plots
+            for i in range(1, n+1, 1):
+                axs[i-1].plot(t_range[0, : ], X[i-1, : ])
+                axs[i-1].yaxis.set_label_position("right")
+                axs[i-1].set_ylabel(f'Massa {i}', rotation=270, labelpad=15)  
+
+            plt.show()
+            break
+
+        elif plot_graph.lower() == 'n': # Pula exibição do gráfico
+            break
+
+        else:
+            print(ctext('Entrada inválida.', 'r'))
+    
+    # =================== #
+    # Frequências e modos #
+    # =================== #
+
+    print(f"{ctext('> Frequências de oscilação:', 'b')}")
+    print(W.T, end='\n\n')
+
+    print(f"{ctext('> Modos de vibração:', 'b')}")
+    print(Q, end='\n\n')
+    
     return
