@@ -33,4 +33,4 @@ python run.py
 
 # ✨ Exemplo
 
-![a](https://i.ibb.co/58jqdHj/numerico-ep1.gif)
+![example](https://i.ibb.co/yRkzXdh/numerico-ep1.gif)
