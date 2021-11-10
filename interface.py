@@ -18,7 +18,7 @@ def start():
 
     while True:
         print(f"Escolha uma tarefa abaixo ou digite {ctext('sair', 'r')} para finalizar a execução.\n")
-        print(f"{ctext('1)', 'b')} Complexidade do algoritmo QR com e sem deslocamento espectral.")
+        print(f"{ctext('1)', 'b')} Eficiência do algoritmo QR com e sem deslocamento espectral.")
         print(f"{ctext('2)', 'b')} Simulação de um sistema massa-mola.\n")
 
         task = input(f"Entre com {ctext('1', 'b')}, {ctext('2', 'b')} ou {ctext('sair', 'r')}: ")

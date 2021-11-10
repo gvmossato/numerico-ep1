@@ -65,7 +65,7 @@ def run(epsilon, n_vals):
             plt.plot(n_vals, infos['k'][ :amount], marker='o') # Com deslocamento
             plt.plot(n_vals, infos['k'][amount: ], marker='o') # Sem deslocamento
 
-            plt.title('Influência do deslocamento na complexidade do algoritmo')
+            plt.title('Influência do deslocamento na eficiência do algoritmo')
             plt.xlabel('Dimensão da matriz (n)')
             plt.ylabel('Iterações até a convergência (k)')
             plt.legend(['Com deslocamento', 'Sem deslocamento'])
