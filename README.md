@@ -17,7 +17,7 @@ Repositório utilizado para o primeiro exercício-programa da disciplina **MAP31
 
 # ⚙️ Instalação
 
-Na alternativa descrita abaixo utiliza-se o [Anaconda](https://www.anaconda.com/) (existem outras possibilidades). 
+Na alternativa descrita abaixo utiliza-se o [Anaconda](https://www.anaconda.com/), existem outras possibilidades. 
 
 ```
 conda create --name <env-name> python=3.7
@@ -33,4 +33,4 @@ python run.py
 
 # ✨ Exemplo
 
-*[TO DO]*
+![a](https://i.ibb.co/58jqdHj/numerico-ep1.gif)
